@@ -6,4 +6,23 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-members = ["actix-service", "hyper-service"]
+members = ["actix-service", "hyper-service", "rust", "tokio"]
+
+# [[bin]] Docs: https://doc.rust-lang.org/cargo/reference/cargo-targets.html#binaries
+
+[[bin]]
+name = "actix-service"
+path = "actix-service/src/main.rs"
+
+[[bin]]
+name = "hyper-service"
+path = "hyper-service/src/main.rs"
+
+
+[[bin]]
+name = "rust"
+path = "rust/src/main.rs"
+
+[[bin]]
+name = "tokio"
+path = "tokio/src/main.rs"

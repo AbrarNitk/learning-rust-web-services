@@ -1,0 +1,15 @@
+-- ds.page: Tokio
+
+- GitHub: https://github.com/tokio-rs/tokio
+- Sie: https://tokio.rs/
+
+- Ab to tok diya ab mat tok diyo :xD
+
+- Tokio is an async runtime for Rust.
+- Provides building blocks for writing Network applications.
+
+At high level tokio provides:-
+- A multi-threaded runtime for executing async code.
+- An async version of standard library.
+- A large ecosystem of libraries.
+
