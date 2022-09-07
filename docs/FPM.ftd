@@ -1,7 +1,7 @@
 -- import: fpm
 
 -- fpm.package: abrark.com/rust-web-services
-download-base-url: https://raw.githubusercontent.com/AbrarNitk/rust-web-services/main/
+download-base-url: https://raw.githubusercontent.com/AbrarNitk/rust-web-services/main/docs/
 
 -- fpm.dependency: fifthtry.github.io/doc-site as ds
 -- fpm.dependency: fifthtry.github.io/roboto-mono
