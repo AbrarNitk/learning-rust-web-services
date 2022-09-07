@@ -1,0 +1,23 @@
+-- import: fpm
+
+-- fpm.package: abrark.com/rust-web-services
+download-base-url: https://raw.githubusercontent.com/AbrarNitk/rust-web-services/main/
+
+-- fpm.dependency: fifthtry.github.io/doc-site as ds
+-- fpm.dependency: fifthtry.github.io/roboto-mono
+
+-- fpm.auto-import: abrark.com/rust-web-services/assets
+-- fpm.auto-import: ds
+-- fpm.auto-import: fifthtry.github.io/roboto-mono as mono
+
+
+-- fpm.sitemap:
+
+# Rust: /
+
+## Web Services: /
+
+- Actix Http Server: /actix-service/
+- Hyper Http Server: /hyper-service/
+
+## Tokio: /tokio/
