@@ -82,3 +82,13 @@ fn main() {
 
     handle.join().unwrap();
 }
+
+-- ds.h2: 16.02: Using Message Passing to Transfer Data Between Threads
+
+From the [Go Programming](https://golang.org/doc/effective_go.html#concurrency):
+Do not communicate by sharing memory, instead, share memory by communicating.
+
+To accomplish message-sending concurrency, Rust uses channels. A Channel is a
+general programming concept by which data is sent from one thread to another.
+
+
