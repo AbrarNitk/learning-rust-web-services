@@ -1,4 +1,5 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use futures::TryFutureExt;
 
 mod utils;
 
@@ -17,14 +18,18 @@ async fn manual_hello() -> impl Responder {
 }
 
 async fn handle_response(response: reqwest::Response) -> actix_web::HttpResponse {
-    let len = match response.content_length() {
-        Some(l) => l as usize,
-        None => {
-            return actix_web::HttpResponse::from(actix_web::error::ErrorInternalServerError(
-                HotMess::InvalidLength,
-            ));
-        }
-    };
+    dbg!(&response.content_length());
+    // dbg!(&response.text().await.unwrap());
+
+    // let len = match response.content_length() {
+    //     Some(l) => l as usize,
+    //     None => {
+    //         return actix_web::HttpResponse::from(actix_web::error::ErrorInternalServerError(
+    //             HotMess::InvalidLength,
+    //         ));
+    //     }
+    // };
+    //
 
     let content = match response.bytes().await {
         Ok(b) => b,
@@ -35,7 +40,7 @@ async fn handle_response(response: reqwest::Response) -> actix_web::HttpResponse
         }
     };
 
-    let mut w = std::io::BufWriter::new(vec![0u8; len]);
+    let mut w = std::io::BufWriter::new(vec![0u8; content.len()]);
     let mut r = std::io::BufReader::new(&content[..]);
 
     match std::io::copy(&mut r, &mut w) {
@@ -49,11 +54,13 @@ async fn handle_response(response: reqwest::Response) -> actix_web::HttpResponse
     }
 
     match w.into_inner() {
-        Ok(body) => HttpResponse::Ok().body(body),
+        Ok(body) => HttpResponse::Ok().content_type("text/html").body(body),
         Err(e) => actix_web::HttpResponse::from(actix_web::error::ErrorInternalServerError(HotMess::FailedBufFlush(
             e.to_string(),
         ))),
     }
+
+    // unimplemented!()
 }
 
 // Proxy Method
@@ -65,6 +72,7 @@ pub async fn get_out(
     for (key, val) in req.headers() {
         headermap.insert(key.clone(), val.clone());
     }
+    // Query Parameter are the parts of it
     let path = &req.uri().to_string()[1..];
     if path.is_empty() {
         println!("I am empty");
@@ -76,7 +84,7 @@ pub async fn get_out(
         req.query_string()
     );
     let client = data.out_client.clone();
-    let req = reqwest::Request::new(reqwest::Method::GET, data.url.clone());
+    let req = reqwest::Request::new(reqwest::Method::GET, reqwest::Url::parse(&format!("{}/{}", data.url.as_str(), path)).unwrap());
     let handle = client.execute(req).await;
     match handle {
         Ok(res) => handle_response(res).await,
