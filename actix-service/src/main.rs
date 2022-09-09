@@ -16,9 +16,51 @@ async fn manual_hello() -> impl Responder {
     HttpResponse::Ok().body("Hey there!")
 }
 
+async fn handle_response(response: reqwest::Response) -> actix_web::HttpResponse {
+    let len = match response.content_length() {
+        Some(l) => l as usize,
+        None => {
+            return actix_web::HttpResponse::from(actix_web::error::ErrorInternalServerError(
+                HotMess::InvalidLength,
+            ));
+        }
+    };
+
+    let content = match response.bytes().await {
+        Ok(b) => b,
+        Err(e) => {
+            return actix_web::HttpResponse::from(actix_web::error::ErrorInternalServerError(
+                HotMess::InvalidBody(e.to_string()),
+            ))
+        }
+    };
+
+    let mut w = std::io::BufWriter::new(vec![0u8; len]);
+    let mut r = std::io::BufReader::new(&content[..]);
+
+    match std::io::copy(&mut r, &mut w) {
+        Ok(n) if n == 0 => return actix_web::HttpResponse::Ok().body(""),
+        Ok(_) => {}
+        Err(e) => {
+            return actix_web::HttpResponse::from(actix_web::error::ErrorInternalServerError(HotMess::IoCopyErr(
+                e.to_string(),
+            )))
+        }
+    }
+
+    match w.into_inner() {
+        Ok(body) => HttpResponse::Ok().body(body),
+        Err(e) => actix_web::HttpResponse::from(actix_web::error::ErrorInternalServerError(HotMess::FailedBufFlush(
+            e.to_string(),
+        ))),
+    }
+}
 
 // Proxy Method
-pub async fn get_out(req: actix_web::HttpRequest, data: actix_web::web::Data<OutUrl>) -> impl Responder {
+pub async fn get_out(
+    req: actix_web::HttpRequest,
+    data: actix_web::web::Data<OutUrl>,
+) -> impl Responder {
     let mut headermap = reqwest::header::HeaderMap::new();
     for (key, val) in req.headers() {
         headermap.insert(key.clone(), val.clone());
@@ -27,8 +69,19 @@ pub async fn get_out(req: actix_web::HttpRequest, data: actix_web::web::Data<Out
     if path.is_empty() {
         println!("I am empty");
     }
-    println!("Request URI: {}, PATH: {}, Query String: {}", req.uri(), path, req.query_string());
-    "".to_string()
+    println!(
+        "Request URI: {}, PATH: {}, Query String: {}",
+        req.uri(),
+        path,
+        req.query_string()
+    );
+    let client = data.out_client.clone();
+    let req = reqwest::Request::new(reqwest::Method::GET, data.url.clone());
+    let handle = client.execute(req).await;
+    match handle {
+        Ok(res) => handle_response(res).await,
+        Err(e) => HttpResponse::InternalServerError().body(format!("Error requesting path: {}", e)),
+    }
 }
 
 const CLIENTPORT: &str = "32655";
@@ -49,7 +102,7 @@ async fn main() -> std::io::Result<()> {
         .expect("Failed creating out client pool");
 
     let redirect_url = OutUrl {
-        url: reqwest::Url::parse(&format!("http://localhost:{}", CLIENTPORT)).unwrap(),
+        url: reqwest::Url::parse(&format!("https://www.google.com/")).unwrap(),
         out_client,
     };
     println!("Redirect URL: {}", redirect_url.url);
@@ -74,9 +127,9 @@ async fn main() -> std::io::Result<()> {
             .default_service(web::route().to(get_out))
             .data(redirect_url.clone())
     })
-        .bind(format!("127.0.0.1:{}", PROXYOUTPORT))?
-        .run()
-        .await
+    .bind(format!("127.0.0.1:{}", PROXYOUTPORT))?
+    .run()
+    .await
 
     // let s_in = HttpServer::new(move || {
     //     App::new()
@@ -100,13 +153,25 @@ async fn main() -> std::io::Result<()> {
     // .await
 }
 
+#[derive(thiserror::Error, Debug)]
+enum HotMess {
+    #[error("Invalid length received")]
+    InvalidLength,
+    #[error("Could not fetch body: {0}")]
+    InvalidBody(String),
+    #[error("Could not copy response body: {0}")]
+    IoCopyErr(String),
+    #[error("Failed to flush the buffer: {0}")]
+    FailedBufFlush(String),
+}
+
 #[derive(Clone)]
 pub struct OutUrl {
     pub url: reqwest::Url,
-    pub out_client: reqwest::Client
+    pub out_client: reqwest::Client,
 }
 
 #[derive(Clone)]
 struct InClient {
-    in_client: reqwest::Client
+    in_client: reqwest::Client,
 }
