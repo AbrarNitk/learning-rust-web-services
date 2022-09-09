@@ -1,7 +1,7 @@
 // Help: https://runrust.miraheze.org/wiki/Underscore#Drop_order_for_wildcard_patterns
 
 struct MyType {
-    a: i32
+    a: i32,
 }
 
 impl Drop for MyType {
@@ -11,13 +11,12 @@ impl Drop for MyType {
 }
 
 pub fn test_drop() {
-    _ = MyType {a: 5};
-    let _ = MyType {a: 10};
-    let a_ = MyType {a: 20};
-    let _a = MyType {a: 30};
+    _ = MyType { a: 5 };
+    let _ = MyType { a: 10 };
+    let a_ = MyType { a: 20 };
+    let _a = MyType { a: 30 };
     println!("Hello from test_drop");
 }
-
 
 /*
 MyType is getting dropped: 5
