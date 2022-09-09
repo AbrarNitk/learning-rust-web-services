@@ -1,4 +1,5 @@
 // Help: https://runrust.miraheze.org/wiki/Underscore#Drop_order_for_wildcard_patterns
+// https://stackoverflow.com/questions/67000498/what-does-the-equal-actually-do-in-rust-with-without-let
 
 struct MyType {
     a: i32,
