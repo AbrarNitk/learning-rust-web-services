@@ -25,8 +25,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 async fn proxy(
     req: hyper::Request<hyper::Body>,
 ) -> Result<hyper::Response<hyper::Body>, hyper::Error> {
-    println!("req: {:?}", req);
-
     let host = match req.uri().host() {
         Some(t) => t,
         None => {
@@ -44,6 +42,7 @@ async fn proxy(
     }
 
     if hyper::Method::CONNECT == req.method() {
+        println!("Connect Req: {:?}", req);
         if let Some(addr) = host_addr(req.uri()) {
             tokio::task::spawn(async move {
                 match hyper::upgrade::on(req).await {
@@ -56,9 +55,15 @@ async fn proxy(
                 }
             });
             return Ok(hyper::Response::new(hyper::Body::empty()));
+        } else {
+            eprintln!("connect host is not socket address: {:?}", req.uri());
+            let mut resp = hyper::Response::new(hyper::Body::from("Bad Request"));
+            *resp.status_mut() = hyper::StatusCode::BAD_REQUEST;
+            return Ok(resp)
         }
     }
 
+    println!("req: {:?}", req);
     let address =  {
         if host.contains(":") {
             host.to_string()
