@@ -16,7 +16,7 @@ path = "actix-service/src/main.rs"
 
 [[bin]]
 name = "hyper-service"
-path = "hyper-service/src/main.rs"
+path = "hyper-service/src/bin/main.rs"
 
 
 [[bin]]
