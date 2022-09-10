@@ -1,7 +1,4 @@
-use std::convert::Infallible;
-
-
-async fn handle(req: hyper::Request<hyper::Body>) -> Result<hyper::Response<hyper::Body>, Infallible> {
+async fn handle(req: hyper::Request<hyper::Body>) -> Result<hyper::Response<hyper::Body>, hyper::Error> {
     use futures::TryStreamExt as _;
     let mut response = hyper::Response::new(hyper::Body::empty());
     match (req.method(), req.uri().path()) {
@@ -15,6 +12,12 @@ async fn handle(req: hyper::Request<hyper::Body>) -> Result<hyper::Response<hype
                         .collect::<Vec<_>>()
                 });
             *response.body_mut() = hyper::Body::wrap_stream(mapping);
+        }
+        (&hyper::Method::POST, "/echo/reverse/") => {
+
+            let full_body = hyper::body::to_bytes(req.into_body()).await?;
+            let reversed = full_body.iter().rev().cloned().collect::<Vec<u8>>();
+            *response.body_mut() = reversed.into();
         }
         (&hyper::Method::POST, "/echo/") => {
             *response.body_mut() = req.into_body();
@@ -33,7 +36,7 @@ async fn main() {
     // TODO: read port from env or cli --port
     let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3000));
     let make_svc = hyper::service::make_service_fn(|_conn| async {
-        Ok::<_, Infallible>(hyper::service::service_fn(handle))
+        Ok::<_, std::convert::Infallible>(hyper::service::service_fn(handle))
     });
     let server = hyper::Server::bind(&addr).serve(make_svc);
     if let Err(e) = server.await {
