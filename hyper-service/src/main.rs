@@ -1,21 +1,41 @@
 use std::convert::Infallible;
-use std::net::SocketAddr;
-use hyper::{Body, Request, Response, Server};
-use hyper::service::{make_service_fn, service_fn};
 
 
-async fn handle(_: Request<Body>) -> Result<Response<Body>, Infallible> {
-    Ok(Response::new("Hello, World!".into()))
+async fn handle(req: hyper::Request<hyper::Body>) -> Result<hyper::Response<hyper::Body>, Infallible> {
+    use futures::TryStreamExt as _;
+    let mut response = hyper::Response::new(hyper::Body::empty());
+    match (req.method(), req.uri().path()) {
+        (&hyper::Method::GET, "/") => {
+            *response.body_mut() = hyper::Body::from("Body from `/`");
+        }
+        (&hyper::Method::POST, "/echo/uppercase/") => {
+                let mapping = req.into_body().map_ok(|chunk| {
+                    chunk.iter()
+                        .map(|byte| byte.to_ascii_uppercase())
+                        .collect::<Vec<_>>()
+                });
+            *response.body_mut() = hyper::Body::wrap_stream(mapping);
+        }
+        (&hyper::Method::POST, "/echo/") => {
+            *response.body_mut() = req.into_body();
+        }
+        _ => {
+            *response.status_mut() = hyper::StatusCode::NOT_FOUND;
+        }
+    };
+    Ok(response)
 }
+
+
 
 #[tokio::main]
 async fn main() {
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-
-    let make_svc = make_service_fn(|_conn| async { Ok::<_, Infallible>(service_fn(handle)) });
-
-    let server = Server::bind(&addr).serve(make_svc);
-
+    // TODO: read port from env or cli --port
+    let addr = std::net::SocketAddr::from(([127, 0, 0, 1], 3000));
+    let make_svc = hyper::service::make_service_fn(|_conn| async {
+        Ok::<_, Infallible>(hyper::service::service_fn(handle))
+    });
+    let server = hyper::Server::bind(&addr).serve(make_svc);
     if let Err(e) = server.await {
         eprintln!("server error: {}", e);
     }
