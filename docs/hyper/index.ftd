@@ -1,1 +1,10 @@
--- ds.page: Hyper
+-- ds.page: hyper
+
+hyper is a fast HTTP implementation written in and for Rust.
+
+- A Client for talking to web services.
+- A Server for building those web services.
+- Blazing fast
+- High concurrency with non-blocking sockets.
+- HTTP/1 and HTTP/2 support.
+

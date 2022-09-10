@@ -1,6 +1,8 @@
-use hyper::service::{make_service_fn, service_fn};
+use std::convert::Infallible;
+use std::net::SocketAddr;
 use hyper::{Body, Request, Response, Server};
-use std::{convert::Infallible, net::SocketAddr};
+use hyper::service::{make_service_fn, service_fn};
+
 
 async fn handle(_: Request<Body>) -> Result<Response<Body>, Infallible> {
     Ok(Response::new("Hello, World!".into()))

@@ -1,0 +1,58 @@
+-- ft.page: Networks
+
+# Intro to Computer Networks
+
+Protocols: Set of rules and regulations.
+Using these rules in two computers communicates to each other.
+
+How two computers talk to each other over the remote.
+
+Physical Layer: Converts digital signals analog signals.
+
+What is voltage, current, frequency
+
+Signals:
+- Signals which are Continuous as time varying in nature are analog signals.
+- Signal which are discrete are called digital signals.
+
+# Analog Signals
+Analog signal is a form of electrical energy (voltage, current or
+electromagnetic power) for which there is a linear relationship between
+electrical quantity and the value that the signal represents.
+
+The signal whose amplitude takes any value in a continuous range is called
+analog signal.
+
+Analog Signals are continuous in nature which vary with respect to time. They
+can be periodic or non-periodic.
+
+Voltage, current, frequency, pressure, sound, light, temperature are the
+physical variables that are measured with respect to their changes with
+respect to time to obtain information.
+
+When voltage versus time graph is plotted we see curve with continuous values
+like sine waves.
+
+These signals are more subjected to noise as they travel through the medium,
+these noises result in information loss in the signal.
+
+Analog to digital converter converts analog signal to digital signal by a process
+ called sampling and quantization. Sound waves are converted to sequence of
+ samples by the process Sampling
+
+# Digital Signals
+
+The signal, whose amplitude takes only limited values is called Digital signal.
+Digital signal are discrete, they contain only distinct values.
+Digital signals carry binary data i.e. 0 or 1 in form of bits, it can only
+contain one value at a period of time. Digital signals are represented as
+square waves or clock signals.
+
+The minimum value is 0 volts whereas maximum value is 5 volts.
+
+Digital signals are less subjected to noise compared to analog signal.
+
+Transmission of digital data in analog channel is done by process called Modulation.
+
+https://instrumentationtools.com/what-are-analog-and-digital-signals-differences-examples/
+
