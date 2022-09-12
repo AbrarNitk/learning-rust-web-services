@@ -1,6 +1,9 @@
 
 // If a file contains line more than 80 chars, this program will append that to next line
 // cargo run --bin file_format -- --file src/bin/temp.ftd
+// Or
+// cargo install path=.
+// file_format --file `pwd`/src/bin/temp.ftd
 
 /// Parse argument from CLI
 /// If CLI command: fpm serve --identities a@foo.com,foo
@@ -54,9 +57,10 @@ fn line_split(l: &str, count: usize) -> (&str, Option<&str>){
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let relative_file_path = parse_from_cli("--file").unwrap();
-    let current_dir = std::env::current_dir()?;
-    let file_path = current_dir.join(relative_file_path);
+    let file_path = parse_from_cli("--file").unwrap();
+    println!("Formatting: {}", file_path);
+    // let current_dir = std::env::current_dir()?;
+    let file_path = std::path::Path::new(&file_path); //current_dir.join(relative_file_path);
     let file_content = String::from_utf8(tokio::fs::read(&file_path).await?)?;
     let mut new_content = String::new();
     let mut remaining = "".to_string();
