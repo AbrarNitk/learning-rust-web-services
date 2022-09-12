@@ -21,7 +21,7 @@ path = "hyper-service/src/bin/main.rs"
 
 [[bin]]
 name = "rust"
-path = "rust/src/main.rs"
+path = "rust/src/bin/main.rs"
 
 [[bin]]
 name = "tokio"
