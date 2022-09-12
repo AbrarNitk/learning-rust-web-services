@@ -92,3 +92,15 @@ append it to next line with trim space if any.
 // Note:
 // How to check if file path is relative or from root.
 // File or directory watcher
+
+
+/*
+# Bugs
+
+## With the below content
+
+- https://www.osho.com/osho-online-library/osho-talks/truth-significance-longing-a6a1ce12-16e?p=8996eacbcc7d1c777f16bfb1b21ee608
+- Path of Meditation: https://www.amazon.in/Path-Meditation-Step-step-Guide/dp/8172610718
+- https://www.amazon.in/Beyond-Psychology-Talks-Uruguay-Osho/dp/8172611951
+
+ */
