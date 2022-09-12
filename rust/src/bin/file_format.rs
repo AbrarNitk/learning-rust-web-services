@@ -22,7 +22,7 @@ pub fn parse_from_cli(key: &str) -> Option<String> {
 }
 
 
-fn find_space(l: &str, count: usize) -> Option<usize>{
+fn find_space_from(l: &str, count: usize) -> Option<usize>{
     if l.len() <= count {
         return None;
     }
@@ -49,8 +49,8 @@ fn find_space(l: &str, count: usize) -> Option<usize>{
 }
 
 fn line_split(l: &str, count: usize) -> (&str, Option<&str>){
-    if let Some(s) = find_space(l, count) {
-        return (&l[0..s], Some(&l[s..]))
+    if let Some(s) = find_space_from(l, count) {
+        return (&l[0..s+1], Some(&l[s+1..]))
     }
     (l, None)
 }
@@ -74,14 +74,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         new_content.push_str(&format!("{}\n", formatted_line));
         remaining = new_remaining.map(|x| x.trim_start().to_string()).unwrap_or("".to_string());
     }
-    if !remaining.is_empty() {
-        new_content.push_str(&format!("{}\n", remaining));
+    while !remaining.is_empty() {
+        let (formatted_line, new_remaining) = line_split(&remaining, 80);
+        new_content.push_str(&format!("{}\n", formatted_line));
+        remaining = new_remaining.map(|x| x.trim_start().to_string()).unwrap_or("".to_string());
     }
 
     tokio::fs::write(file_path, new_content).await?;
 
     // println!("{}", new_content);
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn find_space_position() {
+        assert_eq!(super::find_space_from("123 12321", 3), Some(3));
+    }
 }
 
 /*
