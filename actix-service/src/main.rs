@@ -30,6 +30,7 @@ async fn handle_response(response: reqwest::Response) -> actix_web::HttpResponse
     // };
     //
 
+    // This itself is a buffer
     let content = match response.bytes().await {
         Ok(b) => b,
         Err(e) => {
@@ -39,6 +40,7 @@ async fn handle_response(response: reqwest::Response) -> actix_web::HttpResponse
         }
     };
 
+    // Not needed
     let mut w = std::io::BufWriter::new(vec![0u8; content.len()]);
     let mut r = std::io::BufReader::new(&content[..]);
 
